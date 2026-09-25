@@ -1,0 +1,6 @@
+{
+  "name": "Tech Test",
+  "description": "Technical Day Quiz Competition platform featuring a mobile-first participant quiz and real-time proctoring admin dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
