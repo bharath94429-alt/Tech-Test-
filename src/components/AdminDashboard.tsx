@@ -24,6 +24,7 @@ import {
 import { api, AdminOverviewResponse } from '../services/api';
 import { ParticipantSummary, Participant, EventState, EventSettings } from '../shared/types';
 import { AdminQuestionEditor } from './AdminQuestionEditor';
+import { clientQuizStore } from '../services/clientQuizStore';
 
 interface AdminDashboardProps {
   adminToken: string;
@@ -41,12 +42,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [isLiveConnected, setIsLiveConnected] = useState<boolean>(true);
 
   // Fetch overview
   const fetchOverview = async () => {
     try {
       const data = await api.getAdminOverview(adminToken);
       setOverview(data);
+      setLastUpdated(new Date().toLocaleTimeString());
     } catch (err: any) {
       console.error('Overview fetch failed:', err);
     } finally {
@@ -54,33 +58,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
     }
   };
 
-  // Real-time SSE listener
+  // Real-time live monitoring listeners
   useEffect(() => {
     fetchOverview();
 
-    // Setup EventSource for real-time live updates
-    const eventSource = new EventSource(`/api/admin/events-stream?token=${adminToken}`);
+    // 1. Subscribe to clientQuizStore (immediate memory sync)
+    const unsubClient = clientQuizStore.subscribe(() => {
+      fetchOverview();
+    });
 
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.overview) {
-          setOverview(data.overview);
+    // 2. Window storage & custom events (cross-tab/window sync)
+    const handleStoreUpdate = () => fetchOverview();
+    window.addEventListener('tech_test_store_updated', handleStoreUpdate);
+    window.addEventListener('storage', handleStoreUpdate);
+
+    // 3. EventSource SSE (server-authoritative live stream)
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource(`/api/admin/events-stream?token=${encodeURIComponent(adminToken)}`);
+
+      eventSource.onopen = () => {
+        setIsLiveConnected(true);
+      };
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.overview) {
+            setOverview(data.overview);
+            setLastUpdated(new Date().toLocaleTimeString());
+            setIsLiveConnected(true);
+          }
+        } catch (err) {
+          // Heartbeat or parse error
         }
-      } catch (err) {
-        // Heartbeat or parse error
-      }
-    };
+      };
 
-    eventSource.onerror = () => {
-      // EventSource reconnects automatically
-    };
+      eventSource.onerror = () => {
+        setIsLiveConnected(false);
+      };
+    } catch (err) {
+      setIsLiveConnected(false);
+    }
 
-    // Polling fallback every 6s
-    const pollTimer = setInterval(fetchOverview, 6000);
+    // 4. Polling fallback every 2.5 seconds (ensures ultra-responsive updates)
+    const pollTimer = setInterval(fetchOverview, 2500);
 
     return () => {
-      eventSource.close();
+      unsubClient();
+      window.removeEventListener('tech_test_store_updated', handleStoreUpdate);
+      window.removeEventListener('storage', handleStoreUpdate);
+      if (eventSource) eventSource.close();
       clearInterval(pollTimer);
     };
   }, [adminToken]);
@@ -180,15 +208,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
       {/* Top Banner / Hero */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-stone-200">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center flex-wrap gap-2">
             <span className="text-xs uppercase font-mono tracking-widest text-stone-600 font-semibold">
-              TECH TEST
+              {overview?.settings.name || 'Computer Science – 2nd Year Quiz'}
             </span>
             <span className="text-stone-300">·</span>
-            <span className="text-xs uppercase font-mono tracking-wider font-semibold text-emerald-800 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-              LIVE QUIZ DASHBOARD
+            <span className="text-[11px] uppercase font-mono tracking-wider font-semibold text-emerald-800 flex items-center gap-1.5 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              <span className={`w-2 h-2 rounded-full ${isLiveConnected ? 'bg-emerald-600 animate-pulse' : 'bg-amber-500'}`} />
+              {isLiveConnected ? 'LIVE MONITORING' : 'POLLING LIVE'}
             </span>
+            {lastUpdated && (
+              <span className="text-[11px] font-mono text-stone-500 hidden sm:inline">
+                Synced {lastUpdated}
+              </span>
+            )}
           </div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 mt-1">
             Real-Time Examination Control
@@ -197,6 +230,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
 
         {/* Quick Actions Bar */}
         <div className="flex items-center flex-wrap gap-2">
+          {/* Manual Refresh Button */}
+          <button
+            onClick={() => {
+              setActionLoading(true);
+              fetchOverview().finally(() => setActionLoading(false));
+            }}
+            disabled={actionLoading}
+            className="px-2.5 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold flex items-center gap-1.5 transition shadow-xs"
+            title="Refresh now"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${actionLoading ? 'animate-spin text-stone-900' : 'text-stone-600'}`} />
+            <span>Sync</span>
+          </button>
+
           {/* State Switcher */}
           <div className="inline-flex rounded-xl border border-stone-200 p-1 bg-stone-50">
             <button

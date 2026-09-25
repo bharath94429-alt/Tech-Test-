@@ -53,7 +53,9 @@ export const ParticipantRegister: React.FC<ParticipantRegisterProps> = ({
     <div className="w-full max-w-md mx-auto px-4 py-8">
       {/* Title block */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-stone-900">TECH TEST</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-stone-900">
+          Computer Science – 2nd Year Quiz
+        </h1>
         <p className="text-sm text-stone-700 mt-1 font-medium">
           Technical Day Quiz Competition
         </p>

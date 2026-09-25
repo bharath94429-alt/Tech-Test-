@@ -20,7 +20,7 @@ interface StoredData {
 
 class ClientQuizStore {
   private settings: EventSettings = {
-    name: 'TECH TEST',
+    name: 'Computer Science – 2nd Year Quiz',
     subtitle: 'Technical Day Quiz Competition',
     state: 'ACTIVE',
     timeLimitMinutes: 10,
@@ -39,6 +39,19 @@ class ClientQuizStore {
     if (this.participants.size === 0) {
       this.seedDemoParticipants();
     }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (e.key === STORE_KEY) {
+          this.loadFromStorage();
+          for (const cb of this.listeners) {
+            try {
+              cb();
+            } catch {}
+          }
+        }
+      });
+    }
   }
 
   public subscribe(cb: () => void) {
@@ -50,6 +63,9 @@ class ClientQuizStore {
 
   private notify() {
     this.saveToStorage();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tech_test_store_updated'));
+    }
     for (const cb of this.listeners) {
       try {
         cb();
@@ -539,15 +555,15 @@ class ClientQuizStore {
       startTime: now - 7 * 60 * 1000 + 46 * 1000,
       submissionTime: null,
       completionDurationSeconds: null,
-      answers: { 1: 0, 2: 1, 3: 2, 4: 1, 5: 2, 6: 0, 7: 1, 8: 1 },
-      score: 7,
-      totalQuestions: 10,
-      correctCount: 7,
-      wrongCount: 1,
-      unansweredCount: 2,
+      answers: { 1: 2, 2: 1, 3: 3, 4: 0 },
+      score: 4,
+      totalQuestions: 5,
+      correctCount: 4,
+      wrongCount: 0,
+      unansweredCount: 1,
       status: 'active',
       violations: 0,
-      currentQuestionIndex: 8,
+      currentQuestionIndex: 4,
       isDemo: true,
       activityLog: [
         { id: '1', timestamp: now - 460000, formattedTime: this.formatTimestamp(now - 460000), eventType: 'started', description: 'Started test' },
@@ -563,19 +579,19 @@ class ClientQuizStore {
       startTime: now - 6 * 60 * 1000 + 19 * 1000,
       submissionTime: null,
       completionDurationSeconds: null,
-      answers: { 1: 0, 2: 1, 3: 2, 4: 1, 5: 2, 6: 3 },
-      score: 5,
-      totalQuestions: 10,
-      correctCount: 5,
+      answers: { 1: 2, 2: 0, 3: 3 },
+      score: 2,
+      totalQuestions: 5,
+      correctCount: 2,
       wrongCount: 1,
-      unansweredCount: 4,
+      unansweredCount: 2,
       status: 'warning',
       violations: 2,
-      currentQuestionIndex: 6,
+      currentQuestionIndex: 3,
       isDemo: true,
       activityLog: [
         { id: '10', timestamp: now - 370000, formattedTime: this.formatTimestamp(now - 370000), eventType: 'started', description: 'Started test' },
-        { id: '11', timestamp: now - 250000, formattedTime: this.formatTimestamp(now - 250000), eventType: 'tab_switched', description: 'Tab switched (Question 3)', questionNumber: 3 }
+        { id: '11', timestamp: now - 250000, formattedTime: this.formatTimestamp(now - 250000), eventType: 'tab_switched', description: 'Tab switched (Question 2)', questionNumber: 2 }
       ]
     };
 
@@ -586,16 +602,16 @@ class ClientQuizStore {
       department: 'Electronics & Comm.',
       startTime: now - 15 * 60 * 1000,
       submissionTime: now - 9 * 60 * 1000 - 42 * 1000,
-      completionDurationSeconds: 318,
-      answers: { 1: 0, 2: 1, 3: 2, 4: 1, 5: 2, 6: 0, 7: 1, 8: 2, 9: 0, 10: 1 },
-      score: 9,
-      totalQuestions: 10,
-      correctCount: 9,
-      wrongCount: 1,
+      completionDurationSeconds: 198,
+      answers: { 1: 2, 2: 1, 3: 3, 4: 0, 5: 1 },
+      score: 5,
+      totalQuestions: 5,
+      correctCount: 5,
+      wrongCount: 0,
       unansweredCount: 0,
       status: 'submitted',
       violations: 0,
-      currentQuestionIndex: 9,
+      currentQuestionIndex: 4,
       isDemo: true,
       activityLog: [
         { id: '20', timestamp: now - 900000, formattedTime: this.formatTimestamp(now - 900000), eventType: 'started', description: 'Started test' },

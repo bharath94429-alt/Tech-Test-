@@ -17,123 +17,63 @@ export interface SanitizedQuestion {
 export const OFFICIAL_QUESTIONS: Question[] = [
   {
     id: 1,
-    topic: "Web Development",
-    text: "What does HTML stand for?",
+    topic: "Data Structures",
+    text: "Which data structure follows the LIFO principle?",
     options: [
-      "Hyper Text Markup Language",
-      "High Tech Machine Language",
-      "Hyperlink Text Management Language",
-      "Home Tool Markup Language"
+      "Linked List",
+      "Tree",
+      "Stack",
+      "Queue"
     ],
-    correctIndex: 0
+    correctIndex: 2
   },
   {
     id: 2,
-    topic: "Web Development",
-    text: "Which CSS property is used to create space around elements outside of any defined borders?",
+    topic: "Databases",
+    text: "Which normal form is primarily associated with removing transitive dependencies in a relational database?",
     options: [
-      "padding",
-      "margin",
-      "border-spacing",
-      "outline-offset"
+      "First Normal Form (1NF)",
+      "Third Normal Form (3NF)",
+      "Second Normal Form (2NF)",
+      "Fourth Normal Form (4NF)"
     ],
     correctIndex: 1
   },
   {
     id: 3,
-    topic: "Algorithms & Data Structures",
-    text: "What is the average and worst-case time complexity of searching in a balanced Binary Search Tree (BST) containing n nodes?",
+    topic: "Object-Oriented Programming",
+    text: "In object-oriented programming, which concept allows a subclass to provide a specific implementation of a method already defined in its superclass?",
     options: [
-      "O(1)",
-      "O(n)",
-      "O(log n)",
-      "O(n log n)"
+      "Inheritance",
+      "Abstraction",
+      "Encapsulation",
+      "Method overriding"
     ],
-    correctIndex: 2
+    correctIndex: 3
   },
   {
     id: 4,
-    topic: "Databases",
-    text: "Which SQL clause is specifically used to filter groups created by a GROUP BY clause using aggregate conditions?",
+    topic: "Web & Networking",
+    text: "Which protocol is commonly used to securely transfer web data between a browser and a web server?",
     options: [
-      "WHERE",
-      "HAVING",
-      "ORDER BY",
-      "FILTER BY"
+      "HTTPS",
+      "HTTP",
+      "SMTP",
+      "FTP"
     ],
-    correctIndex: 1
+    correctIndex: 0
   },
   {
     id: 5,
-    topic: "Networking",
-    text: "What is the default standard network port assigned for secure web traffic over HTTPS?",
-    options: [
-      "80",
-      "8080",
-      "443",
-      "22"
-    ],
-    correctIndex: 2
-  },
-  {
-    id: 6,
     topic: "Operating Systems",
-    text: "Which OS memory management technique allows programs to execute even when their memory requirements exceed physical RAM?",
+    text: "Which operating-system technique allows multiple processes to share CPU time so that they appear to run concurrently?",
     options: [
-      "Virtual Memory (Paging)",
-      "Context Switching",
-      "Thrashing Allocation",
-      "Direct Memory Access (DMA)"
-    ],
-    correctIndex: 0
-  },
-  {
-    id: 7,
-    topic: "Cybersecurity",
-    text: "Which security vulnerability occurs when untrusted user input is directly concatenated into a dynamic database query?",
-    options: [
-      "Cross-Site Scripting (XSS)",
-      "SQL Injection (SQLi)",
-      "Denial of Service (DoS)",
-      "Buffer Overflow"
+      "Paging",
+      "Time sharing",
+      "Booting",
+      "Spooling"
     ],
     correctIndex: 1
-  },
-  {
-    id: 8,
-    topic: "Artificial Intelligence",
-    text: "Which machine learning paradigm involves training models on datasets where every input sample is paired with a verified target label?",
-    options: [
-      "Unsupervised Learning",
-      "Reinforcement Learning",
-      "Supervised Learning",
-      "Self-Supervised Clustering"
-    ],
-    correctIndex: 2
-  },
-  {
-    id: 9,
-    topic: "Computer Hardware",
-    text: "Which level of processor cache is physically closest to the execution units and provides the lowest latency data access?",
-    options: [
-      "L1 Cache",
-      "L2 Cache",
-      "L3 Cache",
-      "System Main Memory"
-    ],
-    correctIndex: 0
-  },
-  {
-    id: 10,
-    topic: "General Technology",
-    text: "In the Git version control system, which command combines the history of the specified branch into the current checked-out branch?",
-    options: [
-      "git fork",
-      "git clone",
-      "git merge",
-      "git push --all"
-    ],
-    correctIndex: 2
   }
 ];
 

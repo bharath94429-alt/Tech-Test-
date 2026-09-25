@@ -20,11 +20,17 @@ app.use(express.json());
 const ADMIN_SECRET = 'tech_test_admin_auth_token_9981';
 
 function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  let token: string | undefined;
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  } else if (req.query.token && typeof req.query.token === 'string') {
+    token = req.query.token;
+  }
+
+  if (!token) {
     return res.status(401).json({ error: 'Unauthorized: Admin authentication required.' });
   }
-  const token = authHeader.split(' ')[1];
   if (token !== ADMIN_SECRET) {
     return res.status(403).json({ error: 'Forbidden: Invalid admin token.' });
   }
@@ -355,3 +361,5 @@ async function startServer() {
 }
 
 startServer();
+
+export { app };

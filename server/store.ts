@@ -12,7 +12,7 @@ import { Response } from 'express';
 
 class QuizStore {
   public settings: EventSettings = {
-    name: 'TECH TEST',
+    name: 'Computer Science – 2nd Year Quiz',
     subtitle: 'Technical Day Quiz Competition',
     state: 'ACTIVE',
     timeLimitMinutes: 10,
@@ -452,62 +452,60 @@ class QuizStore {
   public seedDemoParticipants() {
     const now = Date.now();
 
-    // 1. Rahul (TT001) - Active, 8/10, score 7, 0 violations
+    // 1. Rahul (TT001) - Active, 4/5, score 4, 0 violations
     const rahul: Participant = {
       id: 'demo_rahul_01',
       participantId: 'TT001',
       name: 'Rahul Sharma',
       department: 'Computer Science',
-      startTime: now - 7 * 60 * 1000 + 46 * 1000, // 7m 46s ago -> 2m 14s remaining
+      startTime: now - 7 * 60 * 1000 + 46 * 1000,
       submissionTime: null,
       completionDurationSeconds: null,
-      answers: { 1: 0, 2: 1, 3: 2, 4: 1, 5: 2, 6: 0, 7: 1, 8: 1 }, // 7 correct, 1 wrong
-      score: 7,
-      totalQuestions: 10,
-      correctCount: 7,
-      wrongCount: 1,
-      unansweredCount: 2,
+      answers: { 1: 2, 2: 1, 3: 3, 4: 0 }, // 4 correct
+      score: 4,
+      totalQuestions: 5,
+      correctCount: 4,
+      wrongCount: 0,
+      unansweredCount: 1,
       status: 'active',
       violations: 0,
-      currentQuestionIndex: 8,
+      currentQuestionIndex: 4,
       isDemo: true,
       activityLog: [
         { id: '1', timestamp: now - 460000, formattedTime: this.formatTimestamp(now - 460000), eventType: 'started', description: 'Started test' },
         { id: '2', timestamp: now - 400000, formattedTime: this.formatTimestamp(now - 400000), eventType: 'answered', description: 'Answered Question 1', questionNumber: 1 },
-        { id: '3', timestamp: now - 350000, formattedTime: this.formatTimestamp(now - 350000), eventType: 'answered', description: 'Answered Question 2', questionNumber: 2 },
-        { id: '4', timestamp: now - 180000, formattedTime: this.formatTimestamp(now - 180000), eventType: 'answered', description: 'Answered Question 6', questionNumber: 6 }
+        { id: '3', timestamp: now - 350000, formattedTime: this.formatTimestamp(now - 350000), eventType: 'answered', description: 'Answered Question 2', questionNumber: 2 }
       ]
     };
 
-    // 2. Priya (TT002) - Active, 6/10, score 5, 2 violations (Warning)
+    // 2. Priya (TT002) - Active, 3/5, score 2, 2 violations (Warning)
     const priya: Participant = {
       id: 'demo_priya_02',
       participantId: 'TT002',
       name: 'Priya Patel',
       department: 'Information Technology',
-      startTime: now - 6 * 60 * 1000 + 19 * 1000, // 6m 19s ago -> 3m 41s remaining
+      startTime: now - 6 * 60 * 1000 + 19 * 1000,
       submissionTime: null,
       completionDurationSeconds: null,
-      answers: { 1: 0, 2: 1, 3: 2, 4: 1, 5: 2, 6: 3 }, // 5 correct, 1 wrong
-      score: 5,
-      totalQuestions: 10,
-      correctCount: 5,
+      answers: { 1: 2, 2: 0, 3: 3 }, // 2 correct, 1 wrong
+      score: 2,
+      totalQuestions: 5,
+      correctCount: 2,
       wrongCount: 1,
-      unansweredCount: 4,
+      unansweredCount: 2,
       status: 'warning',
       violations: 2,
-      currentQuestionIndex: 6,
+      currentQuestionIndex: 3,
       isDemo: true,
       activityLog: [
         { id: '10', timestamp: now - 370000, formattedTime: this.formatTimestamp(now - 370000), eventType: 'started', description: 'Started test' },
         { id: '11', timestamp: now - 310000, formattedTime: this.formatTimestamp(now - 310000), eventType: 'answered', description: 'Answered Question 1', questionNumber: 1 },
-        { id: '12', timestamp: now - 250000, formattedTime: this.formatTimestamp(now - 250000), eventType: 'tab_switched', description: 'Tab switched (Question 3)', questionNumber: 3 },
-        { id: '13', timestamp: now - 246000, formattedTime: this.formatTimestamp(now - 246000), eventType: 'returned_to_test', description: 'Returned to test (Question 3)', questionNumber: 3 },
-        { id: '14', timestamp: now - 190000, formattedTime: this.formatTimestamp(now - 190000), eventType: 'tab_switched', description: 'Tab switched (Question 5)', questionNumber: 5 }
+        { id: '12', timestamp: now - 250000, formattedTime: this.formatTimestamp(now - 250000), eventType: 'tab_switched', description: 'Tab switched (Question 2)', questionNumber: 2 },
+        { id: '13', timestamp: now - 246000, formattedTime: this.formatTimestamp(now - 246000), eventType: 'returned_to_test', description: 'Returned to test (Question 2)', questionNumber: 2 }
       ]
     };
 
-    // 3. Arjun (TT003) - Submitted, 10/10, score 9, 05:18 duration, 0 violations
+    // 3. Arjun (TT003) - Submitted, 5/5, score 5, 03:18 duration, 0 violations
     const arjun: Participant = {
       id: 'demo_arjun_03',
       participantId: 'TT003',
@@ -515,26 +513,26 @@ class QuizStore {
       department: 'Electronics & Comm.',
       startTime: now - 15 * 60 * 1000,
       submissionTime: now - 9 * 60 * 1000 - 42 * 1000,
-      completionDurationSeconds: 318, // 5m 18s
-      answers: { 1: 0, 2: 1, 3: 2, 4: 1, 5: 2, 6: 0, 7: 1, 8: 2, 9: 0, 10: 1 }, // 9 correct
-      score: 9,
-      totalQuestions: 10,
-      correctCount: 9,
-      wrongCount: 1,
+      completionDurationSeconds: 198,
+      answers: { 1: 2, 2: 1, 3: 3, 4: 0, 5: 1 }, // 5 correct
+      score: 5,
+      totalQuestions: 5,
+      correctCount: 5,
+      wrongCount: 0,
       unansweredCount: 0,
       status: 'submitted',
       violations: 0,
-      currentQuestionIndex: 9,
+      currentQuestionIndex: 4,
       isDemo: true,
       activityLog: [
         { id: '20', timestamp: now - 900000, formattedTime: this.formatTimestamp(now - 900000), eventType: 'started', description: 'Started test' },
         { id: '21', timestamp: now - 840000, formattedTime: this.formatTimestamp(now - 840000), eventType: 'answered', description: 'Answered Question 1', questionNumber: 1 },
-        { id: '22', timestamp: now - 620000, formattedTime: this.formatTimestamp(now - 620000), eventType: 'answered', description: 'Answered Question 10', questionNumber: 10 },
+        { id: '22', timestamp: now - 620000, formattedTime: this.formatTimestamp(now - 620000), eventType: 'answered', description: 'Answered Question 5', questionNumber: 5 },
         { id: '23', timestamp: now - 582000, formattedTime: this.formatTimestamp(now - 582000), eventType: 'submitted', description: 'Test submitted by participant' }
       ]
     };
 
-    // 4. Ananya (TT004) - Submitted, score 8, 06:42 duration, 1 violation
+    // 4. Ananya (TT004) - Submitted, score 4, 04:12 duration, 1 violation
     const ananya: Participant = {
       id: 'demo_ananya_04',
       participantId: 'TT004',
@@ -542,16 +540,16 @@ class QuizStore {
       department: 'Computer Science',
       startTime: now - 20 * 60 * 1000,
       submissionTime: now - 13 * 60 * 1000 - 18 * 1000,
-      completionDurationSeconds: 402, // 6m 42s
-      answers: { 1: 0, 2: 1, 3: 2, 4: 1, 5: 2, 6: 0, 7: 1, 8: 2, 9: 1, 10: 2 },
-      score: 9,
-      totalQuestions: 10,
-      correctCount: 9,
+      completionDurationSeconds: 252,
+      answers: { 1: 2, 2: 1, 3: 3, 4: 0, 5: 0 },
+      score: 4,
+      totalQuestions: 5,
+      correctCount: 4,
       wrongCount: 1,
       unansweredCount: 0,
       status: 'submitted',
       violations: 1,
-      currentQuestionIndex: 9,
+      currentQuestionIndex: 4,
       isDemo: true,
       activityLog: [
         { id: '30', timestamp: now - 1200000, formattedTime: this.formatTimestamp(now - 1200000), eventType: 'started', description: 'Started test' },
@@ -569,21 +567,21 @@ class QuizStore {
       startTime: now - 12 * 60 * 1000,
       submissionTime: now - 9 * 60 * 1000,
       completionDurationSeconds: 180,
-      answers: { 1: 0, 2: 1, 3: 2, 4: 0 },
-      score: 3,
-      totalQuestions: 10,
-      correctCount: 3,
-      wrongCount: 1,
-      unansweredCount: 6,
+      answers: { 1: 2, 2: 1 },
+      score: 2,
+      totalQuestions: 5,
+      correctCount: 2,
+      wrongCount: 0,
+      unansweredCount: 3,
       status: 'flagged',
       violations: 3,
-      currentQuestionIndex: 4,
+      currentQuestionIndex: 2,
       isDemo: true,
       activityLog: [
         { id: '40', timestamp: now - 720000, formattedTime: this.formatTimestamp(now - 720000), eventType: 'started', description: 'Started test' },
         { id: '41', timestamp: now - 680000, formattedTime: this.formatTimestamp(now - 680000), eventType: 'tab_switched', description: 'Tab switched (Question 2)', questionNumber: 2 },
         { id: '42', timestamp: now - 610000, formattedTime: this.formatTimestamp(now - 610000), eventType: 'tab_switched', description: 'Tab switched (Question 3)', questionNumber: 3 },
-        { id: '43', timestamp: now - 540000, formattedTime: this.formatTimestamp(now - 540000), eventType: 'tab_switched', description: 'Tab switched (Question 4)', questionNumber: 4 },
+        { id: '43', timestamp: now - 540000, formattedTime: this.formatTimestamp(now - 540000), eventType: 'tab_switched', description: 'Tab switched (Question 3)', questionNumber: 3 },
         { id: '44', timestamp: now - 540000, formattedTime: this.formatTimestamp(now - 540000), eventType: 'auto_submitted', description: 'Auto-submitted due to reaching violation threshold (3 violations)' }
       ]
     };
