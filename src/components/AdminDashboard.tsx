@@ -207,6 +207,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
     (p) => p.violations >= maxViolationsAllowed
   );
 
+  const totalCohortAnswered = (overview?.participants || []).reduce(
+    (acc, p) => acc + (p.answeredCount ?? Object.keys(p.answers || {}).length),
+    0
+  );
+  const totalCohortPossible = (overview?.participants?.length || 0) * (overview?.participants?.[0]?.totalQuestions || 10);
+  const avgCohortPct = totalCohortPossible > 0 ? Math.round((totalCohortAnswered / totalCohortPossible) * 100) : 0;
+
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-6 sm:py-8">
       {/* Top Banner / Hero */}
@@ -496,9 +503,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl border border-stone-200 shadow-xs p-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-xs p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Search */}
-        <div className="relative w-full sm:w-72">
+        <div className="relative w-full md:w-64">
           <Search className="w-4 h-4 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -509,8 +516,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
           />
         </div>
 
+        {/* Cohort Progress Overview Badge */}
+        <div className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-stone-100/90 border border-stone-200 text-xs font-mono">
+          <span className="text-stone-600 font-sans font-medium">Cohort Progress:</span>
+          <span className="font-bold text-stone-900">{avgCohortPct}%</span>
+          <div className="w-20 bg-stone-200 rounded-full h-2 overflow-hidden shadow-inner">
+            <div
+              className="h-full bg-emerald-600 rounded-full transition-all duration-500"
+              style={{ width: `${avgCohortPct}%` }}
+            />
+          </div>
+          <span className="text-[11px] text-stone-500">({totalCohortAnswered} answered)</span>
+        </div>
+
         {/* Status Filters */}
-        <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-1 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
           {(['all', 'active', 'warning', 'submitted', 'flagged'] as const).map((st) => (
             <button
               key={st}
@@ -536,7 +556,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
               <tr className="bg-stone-50/80 border-b border-stone-200 text-stone-600 font-semibold uppercase tracking-wider text-[11px]">
                 <th className="py-3.5 px-4">Participant</th>
                 <th className="py-3.5 px-4">ID</th>
-                <th className="py-3.5 px-4 text-center min-w-[170px]">Live Progress</th>
+                <th className="py-3.5 px-4 min-w-[210px]">Questions Answered (Progress)</th>
                 <th className="py-3.5 px-4 text-center">Score</th>
                 <th className="py-3.5 px-4 text-center">Time</th>
                 <th className="py-3.5 px-4 text-center">Status</th>
@@ -554,7 +574,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
               ) : (
                 filteredParticipants.map((p) => {
                   const isLimitExceeded = p.violations >= maxViolationsAllowed;
-                  const totalQ = p.totalQuestions || overview?.settings ? 5 : 5;
+                  const totalQ = p.totalQuestions || 10;
                   const answered = p.answeredCount ?? Object.keys(p.answers || {}).length;
                   const pct = p.progressPercentage ?? Math.round((answered / (totalQ || 1)) * 100);
 
@@ -603,27 +623,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
                       </td>
                       <td className="py-3.5 px-4">
                         {/* Live Visual Progress Display */}
-                        <div className="w-full max-w-[150px] mx-auto">
-                          <div className="flex items-center justify-between text-[11px] font-mono mb-1">
-                            <span className="font-bold text-stone-900">{answered}/{totalQ} answered</span>
-                            <span className={`font-bold ${pct === 100 ? 'text-emerald-700' : 'text-stone-700'}`}>
+                        <div className="w-full max-w-[210px]">
+                          <div className="flex items-center justify-between text-xs font-mono mb-1.5">
+                            <span className="font-bold text-stone-900">
+                              {answered} of {totalQ} answered
+                            </span>
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[11px] font-bold ${
+                                pct === 100
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : pct > 0
+                                  ? 'bg-stone-100 text-stone-900 border border-stone-300'
+                                  : 'bg-stone-50 text-stone-400 border border-stone-200'
+                              }`}
+                            >
                               {pct}%
                             </span>
                           </div>
-                          <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden shadow-inner">
+                          <div className="w-full bg-stone-200/90 rounded-full h-2.5 overflow-hidden shadow-inner p-0.5 border border-stone-300/60">
                             <div
-                              className={`h-full rounded-full transition-all duration-300 ${
+                              className={`h-full rounded-full transition-all duration-500 ${
                                 pct === 100
-                                  ? 'bg-emerald-500'
-                                  : pct > 0
+                                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                                  : pct > 50
                                   ? 'bg-stone-900'
-                                  : 'bg-stone-300'
+                                  : pct > 0
+                                  ? 'bg-indigo-600'
+                                  : 'bg-transparent'
                               }`}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          {/* Question Dots */}
-                          <div className="flex items-center justify-center gap-1 mt-1.5">
+                          {/* Question Chips */}
+                          <div className="flex items-center gap-1 mt-1.5">
                             {Array.from({ length: totalQ }).map((_, qIdx) => {
                               const qNum = qIdx + 1;
                               const isAns = p.answers ? p.answers[qNum] !== undefined : false;
@@ -631,13 +663,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
                                 <span
                                   key={qNum}
                                   title={`Question ${qNum}: ${isAns ? 'Answered' : 'Not yet answered'}`}
-                                  className={`w-3.5 h-3.5 rounded-xs flex items-center justify-center text-[9px] font-mono font-bold ${
+                                  className={`flex-1 h-3.5 rounded-xs flex items-center justify-center text-[9px] font-mono font-bold transition-colors ${
                                     isAns
                                       ? 'bg-emerald-600 text-white'
                                       : 'bg-stone-100 text-stone-400 border border-stone-200'
                                   }`}
                                 >
-                                  {qNum}
+                                  Q{qNum}{isAns ? '✓' : ''}
                                 </span>
                               );
                             })}
@@ -722,7 +754,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
           ) : (
             filteredParticipants.map((p) => {
               const isLimitExceeded = p.violations >= maxViolationsAllowed;
-              const totalQ = p.totalQuestions || 5;
+              const totalQ = p.totalQuestions || 10;
               const answered = p.answeredCount ?? Object.keys(p.answers || {}).length;
               const pct = p.progressPercentage ?? Math.round((answered / (totalQ || 1)) * 100);
 
@@ -779,22 +811,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
                   </div>
 
                   {/* Mobile Live Progress Bar */}
-                  <div className="my-2.5 p-2 rounded-xl bg-stone-100/70">
-                    <div className="flex items-center justify-between text-[11px] font-mono mb-1">
-                      <span className="font-bold text-stone-800">Progress: {answered}/{totalQ} Answered</span>
-                      <span className="font-bold text-stone-700">{pct}%</span>
-                    </div>
-                    <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden shadow-inner">
-                      <div
-                        className={`h-full rounded-full transition-all duration-300 ${
+                  <div className="my-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200">
+                    <div className="flex items-center justify-between text-xs font-mono mb-1.5">
+                      <span className="font-bold text-stone-900">
+                        {answered} of {totalQ} Answered
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                           pct === 100
-                            ? 'bg-emerald-500'
-                            : pct > 0
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : 'bg-stone-200 text-stone-800'
+                        }`}
+                      >
+                        {pct}% Completed
+                      </span>
+                    </div>
+                    <div className="w-full bg-stone-200 rounded-full h-2.5 overflow-hidden shadow-inner p-0.5 border border-stone-300/60">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          pct === 100
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                            : pct > 50
                             ? 'bg-stone-900'
-                            : 'bg-stone-300'
+                            : pct > 0
+                            ? 'bg-indigo-600'
+                            : 'bg-transparent'
                         }`}
                         style={{ width: `${pct}%` }}
                       />
+                    </div>
+                    {/* Mobile Question Chips */}
+                    <div className="flex items-center gap-1 mt-2">
+                      {Array.from({ length: totalQ }).map((_, qIdx) => {
+                        const qNum = qIdx + 1;
+                        const isAns = p.answers ? p.answers[qNum] !== undefined : false;
+                        return (
+                          <span
+                            key={qNum}
+                            className={`flex-1 py-0.5 rounded text-center text-[9px] font-mono font-bold ${
+                              isAns
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-stone-100 text-stone-400 border border-stone-200'
+                            }`}
+                          >
+                            Q{qNum}{isAns ? '✓' : ''}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -941,8 +1004,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
               </div>
 
               {/* Question Chips Map */}
-              <div className="grid grid-cols-5 gap-1.5 mb-2">
-                {Array.from({ length: selectedParticipant.totalQuestions || 5 }).map((_, qIdx) => {
+              <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5 mb-2">
+                {Array.from({ length: selectedParticipant.totalQuestions || 10 }).map((_, qIdx) => {
                   const qNum = qIdx + 1;
                   const chosenOpt = selectedParticipant.answers ? selectedParticipant.answers[qNum] : undefined;
                   const isAns = chosenOpt !== undefined && chosenOpt !== null;

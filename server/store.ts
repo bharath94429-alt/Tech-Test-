@@ -456,7 +456,7 @@ class QuizStore {
   public seedDemoParticipants() {
     const now = Date.now();
 
-    // 1. Rahul (TT001) - Active, 4/5, score 4, 0 violations
+    // 1. Rahul (TT001) - Active, 7/10, score 7, 0 violations
     const rahul: Participant = {
       id: 'demo_rahul_01',
       participantId: 'TT001',
@@ -465,15 +465,15 @@ class QuizStore {
       startTime: now - 7 * 60 * 1000 + 46 * 1000,
       submissionTime: null,
       completionDurationSeconds: null,
-      answers: { 1: 2, 2: 1, 3: 3, 4: 0 }, // 4 correct
-      score: 4,
-      totalQuestions: 5,
-      correctCount: 4,
+      answers: { 1: 2, 2: 0, 3: 2, 4: 1, 5: 1, 6: 1, 7: 1 },
+      score: 7,
+      totalQuestions: 10,
+      correctCount: 7,
       wrongCount: 0,
-      unansweredCount: 1,
+      unansweredCount: 3,
       status: 'active',
       violations: 0,
-      currentQuestionIndex: 4,
+      currentQuestionIndex: 7,
       isDemo: true,
       activityLog: [
         { id: '1', timestamp: now - 460000, formattedTime: this.formatTimestamp(now - 460000), eventType: 'started', description: 'Started test' },
@@ -482,7 +482,7 @@ class QuizStore {
       ]
     };
 
-    // 2. Priya (TT002) - Active, 3/5, score 2, 2 violations (Warning)
+    // 2. Priya (TT002) - Active, 5/10, score 4, 2 violations (Warning)
     const priya: Participant = {
       id: 'demo_priya_02',
       participantId: 'TT002',
@@ -491,15 +491,15 @@ class QuizStore {
       startTime: now - 6 * 60 * 1000 + 19 * 1000,
       submissionTime: null,
       completionDurationSeconds: null,
-      answers: { 1: 2, 2: 0, 3: 3 }, // 2 correct, 1 wrong
-      score: 2,
-      totalQuestions: 5,
-      correctCount: 2,
+      answers: { 1: 2, 2: 1, 3: 2, 4: 1, 5: 1 }, // 4 correct, 1 wrong
+      score: 4,
+      totalQuestions: 10,
+      correctCount: 4,
       wrongCount: 1,
-      unansweredCount: 2,
+      unansweredCount: 5,
       status: 'warning',
       violations: 2,
-      currentQuestionIndex: 3,
+      currentQuestionIndex: 5,
       isDemo: true,
       activityLog: [
         { id: '10', timestamp: now - 370000, formattedTime: this.formatTimestamp(now - 370000), eventType: 'started', description: 'Started test' },
@@ -509,7 +509,7 @@ class QuizStore {
       ]
     };
 
-    // 3. Arjun (TT003) - Submitted, 5/5, score 5, 03:18 duration, 0 violations
+    // 3. Arjun (TT003) - Submitted, 10/10, score 10, 03:18 duration, 0 violations
     const arjun: Participant = {
       id: 'demo_arjun_03',
       participantId: 'TT003',
@@ -518,25 +518,25 @@ class QuizStore {
       startTime: now - 15 * 60 * 1000,
       submissionTime: now - 9 * 60 * 1000 - 42 * 1000,
       completionDurationSeconds: 198,
-      answers: { 1: 2, 2: 1, 3: 3, 4: 0, 5: 1 }, // 5 correct
-      score: 5,
-      totalQuestions: 5,
-      correctCount: 5,
+      answers: { 1: 2, 2: 0, 3: 2, 4: 1, 5: 1, 6: 1, 7: 1, 8: 2, 9: 3, 10: 1 }, // 10 correct
+      score: 10,
+      totalQuestions: 10,
+      correctCount: 10,
       wrongCount: 0,
       unansweredCount: 0,
       status: 'submitted',
       violations: 0,
-      currentQuestionIndex: 4,
+      currentQuestionIndex: 9,
       isDemo: true,
       activityLog: [
         { id: '20', timestamp: now - 900000, formattedTime: this.formatTimestamp(now - 900000), eventType: 'started', description: 'Started test' },
         { id: '21', timestamp: now - 840000, formattedTime: this.formatTimestamp(now - 840000), eventType: 'answered', description: 'Answered Question 1', questionNumber: 1 },
-        { id: '22', timestamp: now - 620000, formattedTime: this.formatTimestamp(now - 620000), eventType: 'answered', description: 'Answered Question 5', questionNumber: 5 },
+        { id: '22', timestamp: now - 620000, formattedTime: this.formatTimestamp(now - 620000), eventType: 'answered', description: 'Answered Question 10', questionNumber: 10 },
         { id: '23', timestamp: now - 582000, formattedTime: this.formatTimestamp(now - 582000), eventType: 'submitted', description: 'Test submitted by participant' }
       ]
     };
 
-    // 4. Ananya (TT004) - Submitted, score 4, 04:12 duration, 1 violation
+    // 4. Ananya (TT004) - Submitted, score 9, 04:12 duration, 1 violation
     const ananya: Participant = {
       id: 'demo_ananya_04',
       participantId: 'TT004',
@@ -545,15 +545,15 @@ class QuizStore {
       startTime: now - 20 * 60 * 1000,
       submissionTime: now - 13 * 60 * 1000 - 18 * 1000,
       completionDurationSeconds: 252,
-      answers: { 1: 2, 2: 1, 3: 3, 4: 0, 5: 0 },
-      score: 4,
-      totalQuestions: 5,
-      correctCount: 4,
+      answers: { 1: 2, 2: 0, 3: 2, 4: 1, 5: 1, 6: 0, 7: 1, 8: 2, 9: 3, 10: 1 }, // 9 correct, 1 wrong
+      score: 9,
+      totalQuestions: 10,
+      correctCount: 9,
       wrongCount: 1,
       unansweredCount: 0,
       status: 'submitted',
       violations: 1,
-      currentQuestionIndex: 4,
+      currentQuestionIndex: 9,
       isDemo: true,
       activityLog: [
         { id: '30', timestamp: now - 1200000, formattedTime: this.formatTimestamp(now - 1200000), eventType: 'started', description: 'Started test' },
@@ -571,15 +571,15 @@ class QuizStore {
       startTime: now - 12 * 60 * 1000,
       submissionTime: now - 9 * 60 * 1000,
       completionDurationSeconds: 180,
-      answers: { 1: 2, 2: 1 },
-      score: 2,
-      totalQuestions: 5,
-      correctCount: 2,
-      wrongCount: 0,
-      unansweredCount: 3,
+      answers: { 1: 2, 2: 0, 3: 2, 4: 0 }, // 3 correct, 1 wrong
+      score: 3,
+      totalQuestions: 10,
+      correctCount: 3,
+      wrongCount: 1,
+      unansweredCount: 6,
       status: 'flagged',
       violations: 3,
-      currentQuestionIndex: 2,
+      currentQuestionIndex: 3,
       isDemo: true,
       activityLog: [
         { id: '40', timestamp: now - 720000, formattedTime: this.formatTimestamp(now - 720000), eventType: 'started', description: 'Started test' },
