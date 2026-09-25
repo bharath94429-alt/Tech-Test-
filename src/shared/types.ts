@@ -71,6 +71,14 @@ export interface EventSettings {
   leaderboardPublic: boolean;
 }
 
+export interface Question {
+  id: number;
+  text: string;
+  topic: string;
+  options: string[];
+  correctIndex: number;
+}
+
 export interface SanitizedQuestion {
   id: number;
   questionNumber: number;

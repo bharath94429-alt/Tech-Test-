@@ -17,10 +17,13 @@ import {
   X,
   Clock,
   ShieldAlert,
-  Database
+  Database,
+  SlidersHorizontal,
+  BookOpen
 } from 'lucide-react';
 import { api, AdminOverviewResponse } from '../services/api';
 import { ParticipantSummary, Participant, EventState, EventSettings } from '../shared/types';
+import { AdminQuestionEditor } from './AdminQuestionEditor';
 
 interface AdminDashboardProps {
   adminToken: string;
@@ -30,6 +33,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLogout }) => {
   const [overview, setOverview] = useState<AdminOverviewResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'monitoring' | 'questions'>('monitoring');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'warning' | 'submitted' | 'flagged'>('all');
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
@@ -142,14 +146,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
     }
   };
 
-  // Export CSV download
-  const handleExportCSV = () => {
-    const link = document.createElement('a');
-    link.href = api.getExportCsvUrl();
-    link.setAttribute('download', 'tech_test_results.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Export CSV download (works on both server and client fallback)
+  const handleExportCSV = async () => {
+    setActionLoading(true);
+    try {
+      await api.downloadExportCsv(adminToken);
+    } catch (err: any) {
+      alert(err.message || 'Failed to export CSV');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const filteredParticipants = (overview?.participants || []).filter((p) => {
@@ -261,7 +267,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
         </div>
       </div>
 
-      {/* 4 Stat KPI Cards */}
+      {/* Admin Tabs */}
+      <div className="flex items-center gap-2 mt-6 mb-2 border-b border-stone-200 pb-3">
+        <button
+          onClick={() => setActiveTab('monitoring')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 ${
+            activeTab === 'monitoring'
+              ? 'bg-stone-900 text-white shadow-xs'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          <span>Live Monitoring</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('questions')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 ${
+            activeTab === 'questions'
+              ? 'bg-stone-900 text-white shadow-xs'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>Customize Questions</span>
+        </button>
+      </div>
+
+      {activeTab === 'questions' ? (
+        <div className="mt-4">
+          <AdminQuestionEditor adminToken={adminToken} onQuestionsUpdated={fetchOverview} />
+        </div>
+      ) : (
+        <>
+          {/* 4 Stat KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 my-6">
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
           <div className="flex items-center justify-between text-stone-600 mb-2">
@@ -539,6 +578,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
           )}
         </div>
       </div>
+      </>
+      )}
 
       {/* Individual Participant Modal / Drawer */}
       {selectedParticipant && (

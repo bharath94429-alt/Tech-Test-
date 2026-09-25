@@ -48,7 +48,7 @@ function getParticipantToken(req: Request): string | null {
 app.get('/api/event/status', (_req, res) => {
   res.json({
     settings: quizStore.settings,
-    totalQuestions: OFFICIAL_QUESTIONS.length
+    totalQuestions: quizStore.getQuestionsCount()
   });
 });
 
@@ -82,7 +82,7 @@ app.post('/api/participant/register', (req, res) => {
     });
 
     const timeRemainingSeconds = quizStore.getTimeRemainingSeconds(participant);
-    const questions = getSanitizedQuestions();
+    const questions = quizStore.getSanitizedQuestions();
 
     res.json({
       token,
@@ -117,7 +117,7 @@ app.get('/api/participant/session', (req, res) => {
   quizStore.checkTimeExpiration(participant);
 
   const timeRemainingSeconds = quizStore.getTimeRemainingSeconds(participant);
-  const questions = getSanitizedQuestions();
+  const questions = quizStore.getSanitizedQuestions();
 
   res.json({
     participant: {
@@ -256,6 +256,27 @@ app.get('/api/admin/participant/:id', requireAdmin, (req, res) => {
 app.post('/api/admin/settings', requireAdmin, (req, res) => {
   quizStore.updateSettings(req.body);
   res.json({ ok: true, settings: quizStore.settings });
+});
+
+// Admin Get Full Questions (with answers)
+app.get('/api/admin/questions', requireAdmin, (_req, res) => {
+  res.json({ questions: quizStore.getQuestions() });
+});
+
+// Admin Save Questions
+app.post('/api/admin/questions', requireAdmin, (req, res) => {
+  const { questions } = req.body;
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return res.status(400).json({ error: 'Quiz must contain at least 1 question.' });
+  }
+  quizStore.setQuestions(questions);
+  res.json({ ok: true, questions: quizStore.getQuestions() });
+});
+
+// Admin Reset Questions to Default
+app.post('/api/admin/questions/reset', requireAdmin, (_req, res) => {
+  quizStore.resetQuestions();
+  res.json({ ok: true, questions: quizStore.getQuestions() });
 });
 
 // Admin Seed Demo Data

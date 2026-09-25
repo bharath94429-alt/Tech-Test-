@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Eye, EyeOff, Lock, User, ArrowRight, AlertCircle, KeyRound } from 'lucide-react';
+import { Shield, Eye, EyeOff, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
 import { api } from '../services/api';
 
 interface AdminLoginProps {
@@ -8,7 +8,7 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onCancel }) => {
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -118,16 +118,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onCancel
             Return to Participant Quiz
           </button>
         </form>
-
-        {/* Prototype credential hint box */}
-        <div className="mt-6 pt-4 border-t border-stone-100 flex items-start gap-2.5 text-[11px] text-stone-600 leading-normal">
-          <KeyRound className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
-          <div>
-            <span className="font-semibold text-stone-800">Default Credentials:</span>
-            <div>Username: <code className="bg-stone-100 px-1 py-0.5 rounded font-mono text-stone-900">admin</code></div>
-            <div>Password: <code className="bg-stone-100 px-1 py-0.5 rounded font-mono text-stone-900">Admin</code></div>
-          </div>
-        </div>
       </div>
     </div>
   );
