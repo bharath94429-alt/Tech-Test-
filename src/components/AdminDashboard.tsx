@@ -202,6 +202,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
   });
 
   const hasDemo = (overview?.participants || []).some((p) => p.isDemo);
+  const maxViolationsAllowed = overview?.settings.maxViolations ?? 3;
+  const violatedCandidates = (overview?.participants || []).filter(
+    (p) => p.violations >= maxViolationsAllowed
+  );
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-6 sm:py-8">
@@ -347,52 +351,118 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
         </div>
       ) : (
         <>
+          {/* Critical Violation Alert Banner when candidate exceeds allowed violations */}
+          {violatedCandidates.length > 0 && (
+            <div className="my-5 p-4 sm:p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 shadow-sm ring-2 ring-rose-200/60 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="p-2.5 rounded-xl bg-rose-600 text-white shadow-sm shrink-0 mt-0.5 animate-pulse">
+                    <ShieldAlert className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-rose-200 text-rose-900 border border-rose-300">
+                        Proctoring Alert
+                      </span>
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+                      </span>
+                      <span className="text-xs font-bold text-rose-900 uppercase">
+                        Violation Limit Exceeded ({maxViolationsAllowed} Allowed)
+                      </span>
+                    </div>
+                    <h3 className="text-sm sm:text-base font-bold text-rose-950 mt-1">
+                      {violatedCandidates.length} candidate{violatedCandidates.length > 1 ? 's have' : ' has'} exceeded the permitted violation threshold!
+                    </h3>
+                    <p className="text-xs text-rose-800 mt-0.5">
+                      The automated proctor detected window switches and blur events exceeding the limit. Their exams have been flagged and locked.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {violatedCandidates.map((vc) => (
+                    <button
+                      key={vc.id}
+                      onClick={() => handleOpenParticipant(vc.id)}
+                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-100 border border-rose-300 text-rose-900 text-xs font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                      title="Inspect participant activity log"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-rose-700" />
+                      <span>{vc.name} ({vc.violations} violations)</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 4 Stat KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 my-6">
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="flex items-center justify-between text-stone-600 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Participants</span>
-            <Users className="w-4 h-4 text-stone-600" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-stone-900">
-            {overview?.totalParticipants ?? 0}
-          </div>
-          <div className="text-[11px] text-stone-600 mt-1 font-medium">Total registered candidates</div>
-        </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 my-6">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
+              <div className="flex items-center justify-between text-stone-600 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Participants</span>
+                <Users className="w-4 h-4 text-stone-600" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-stone-900">
+                {overview?.totalParticipants ?? 0}
+              </div>
+              <div className="text-[11px] text-stone-600 mt-1 font-medium">Total registered candidates</div>
+            </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="flex items-center justify-between text-stone-600 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Active</span>
-            <Activity className="w-4 h-4 text-emerald-800" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-emerald-800">
-            {overview?.activeParticipants ?? 0}
-          </div>
-          <div className="text-[11px] text-stone-600 mt-1 font-medium">Taking test currently</div>
-        </div>
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
+              <div className="flex items-center justify-between text-stone-600 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Active</span>
+                <Activity className="w-4 h-4 text-emerald-800" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-emerald-800">
+                {overview?.activeParticipants ?? 0}
+              </div>
+              <div className="text-[11px] text-stone-600 mt-1 font-medium">Taking test currently</div>
+            </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="flex items-center justify-between text-stone-600 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Submitted</span>
-            <CheckCircle2 className="w-4 h-4 text-stone-600" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-stone-900">
-            {overview?.submittedParticipants ?? 0}
-          </div>
-          <div className="text-[11px] text-stone-600 mt-1 font-medium">Tests completed</div>
-        </div>
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
+              <div className="flex items-center justify-between text-stone-600 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Submitted</span>
+                <CheckCircle2 className="w-4 h-4 text-stone-600" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-stone-900">
+                {overview?.submittedParticipants ?? 0}
+              </div>
+              <div className="text-[11px] text-stone-600 mt-1 font-medium">Tests completed</div>
+            </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="flex items-center justify-between text-stone-600 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Flagged</span>
-            <ShieldAlert className="w-4 h-4 text-amber-800" />
+            <div className={`p-4 sm:p-5 rounded-2xl border shadow-xs transition-all ${
+              violatedCandidates.length > 0
+                ? 'bg-rose-50/90 border-rose-300 ring-2 ring-rose-200/60'
+                : 'bg-white border-stone-200'
+            }`}>
+              <div className="flex items-center justify-between text-stone-600 mb-2">
+                <span className={`text-xs font-semibold uppercase tracking-wider ${
+                  violatedCandidates.length > 0 ? 'text-rose-900 font-bold' : ''
+                }`}>
+                  {violatedCandidates.length > 0 ? 'Limit Exceeded' : 'Flagged'}
+                </span>
+                <div className="relative">
+                  <ShieldAlert className={`w-4 h-4 ${violatedCandidates.length > 0 ? 'text-rose-600 animate-pulse' : 'text-amber-800'}`} />
+                  {violatedCandidates.length > 0 && (
+                    <span className="animate-ping absolute -top-1 -right-1 inline-flex h-2 w-2 rounded-full bg-rose-500 opacity-75"></span>
+                  )}
+                </div>
+              </div>
+              <div className={`text-2xl sm:text-3xl font-bold font-mono tracking-tight ${
+                violatedCandidates.length > 0 ? 'text-rose-700' : 'text-amber-800'
+              }`}>
+                {overview?.flaggedParticipants ?? 0}
+              </div>
+              <div className="text-[11px] text-stone-600 mt-1 font-medium">
+                {violatedCandidates.length > 0
+                  ? `${violatedCandidates.length} candidate(s) over max violations`
+                  : 'Tab-switch violations'}
+              </div>
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-amber-800">
-            {overview?.flaggedParticipants ?? 0}
-          </div>
-          <div className="text-[11px] text-stone-600 mt-1 font-medium">Tab-switch violations</div>
-        </div>
-      </div>
 
       {/* Demo Data Management Strip */}
       <div className="mb-6 px-4 py-3 rounded-xl bg-stone-100/80 border border-stone-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
@@ -465,12 +535,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
             <thead>
               <tr className="bg-stone-50/80 border-b border-stone-200 text-stone-600 font-semibold uppercase tracking-wider text-[11px]">
                 <th className="py-3.5 px-4">Participant</th>
-                <th className="py-3.5 px-4">Participant ID</th>
-                <th className="py-3.5 px-4 text-center">Progress</th>
+                <th className="py-3.5 px-4">ID</th>
+                <th className="py-3.5 px-4 text-center min-w-[170px]">Live Progress</th>
                 <th className="py-3.5 px-4 text-center">Score</th>
                 <th className="py-3.5 px-4 text-center">Time</th>
                 <th className="py-3.5 px-4 text-center">Status</th>
-                <th className="py-3.5 px-4 text-center">Violations</th>
+                <th className="py-3.5 px-4 text-center min-w-[140px]">Violations</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -483,28 +553,96 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
                 </tr>
               ) : (
                 filteredParticipants.map((p) => {
+                  const isLimitExceeded = p.violations >= maxViolationsAllowed;
+                  const totalQ = p.totalQuestions || overview?.settings ? 5 : 5;
+                  const answered = p.answeredCount ?? Object.keys(p.answers || {}).length;
+                  const pct = p.progressPercentage ?? Math.round((answered / (totalQ || 1)) * 100);
+
                   return (
                     <tr
                       key={p.id}
                       onClick={() => handleOpenParticipant(p.id)}
-                      className="hover:bg-stone-50/80 cursor-pointer transition-colors"
+                      className={`cursor-pointer transition-colors ${
+                        isLimitExceeded
+                          ? 'bg-rose-50/70 border-l-4 border-l-rose-600 hover:bg-rose-100/60'
+                          : p.status === 'warning'
+                          ? 'bg-amber-50/30 hover:bg-stone-50'
+                          : 'hover:bg-stone-50/80'
+                      }`}
                     >
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-stone-900">{p.name}</div>
-                        <div className="text-[11px] text-stone-600 font-normal">
-                          {p.department || 'General'}
-                          {p.isDemo && (
-                            <span className="ml-1.5 text-[10px] text-stone-500 font-mono">
-                              (Demo)
+                        <div className="flex items-center gap-2">
+                          {isLimitExceeded && (
+                            <span className="relative flex h-2.5 w-2.5 shrink-0" title="Violations limit exceeded!">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
                             </span>
                           )}
+                          <div>
+                            <div className="font-bold text-stone-900 flex items-center gap-1.5">
+                              <span>{p.name}</span>
+                              {isLimitExceeded && (
+                                <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-rose-200 text-rose-900">
+                                  ALERT
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-stone-600 font-normal">
+                              {p.department || 'General'}
+                              {p.isDemo && (
+                                <span className="ml-1.5 text-[10px] text-stone-500 font-mono">
+                                  (Demo)
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className="py-3.5 px-4 font-mono font-semibold text-stone-700">
                         {p.participantId}
                       </td>
-                      <td className="py-3.5 px-4 text-center font-mono text-stone-700">
-                        {p.progressText}
+                      <td className="py-3.5 px-4">
+                        {/* Live Visual Progress Display */}
+                        <div className="w-full max-w-[150px] mx-auto">
+                          <div className="flex items-center justify-between text-[11px] font-mono mb-1">
+                            <span className="font-bold text-stone-900">{answered}/{totalQ} answered</span>
+                            <span className={`font-bold ${pct === 100 ? 'text-emerald-700' : 'text-stone-700'}`}>
+                              {pct}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden shadow-inner">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                pct === 100
+                                  ? 'bg-emerald-500'
+                                  : pct > 0
+                                  ? 'bg-stone-900'
+                                  : 'bg-stone-300'
+                              }`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          {/* Question Dots */}
+                          <div className="flex items-center justify-center gap-1 mt-1.5">
+                            {Array.from({ length: totalQ }).map((_, qIdx) => {
+                              const qNum = qIdx + 1;
+                              const isAns = p.answers ? p.answers[qNum] !== undefined : false;
+                              return (
+                                <span
+                                  key={qNum}
+                                  title={`Question ${qNum}: ${isAns ? 'Answered' : 'Not yet answered'}`}
+                                  className={`w-3.5 h-3.5 rounded-xs flex items-center justify-center text-[9px] font-mono font-bold ${
+                                    isAns
+                                      ? 'bg-emerald-600 text-white'
+                                      : 'bg-stone-100 text-stone-400 border border-stone-200'
+                                  }`}
+                                >
+                                  {qNum}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </td>
                       <td className="py-3.5 px-4 text-center font-mono font-bold text-stone-900">
                         {p.scoreText}
@@ -513,31 +651,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
                         {p.timeDisplay}
                       </td>
                       <td className="py-3.5 px-4 text-center">
-                        <span
-                          className={`text-[11px] font-semibold uppercase ${
-                            p.status === 'flagged'
-                              ? 'text-rose-700'
-                              : p.status === 'warning'
-                              ? 'text-amber-700'
-                              : p.status === 'submitted'
-                              ? 'text-stone-800'
-                              : 'text-emerald-700'
-                          }`}
-                        >
-                          {p.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-center font-mono">
-                        {p.violations > 0 ? (
-                          <span
-                            className={`font-bold ${
-                              p.violations >= 3 ? 'text-rose-700' : 'text-amber-700'
-                            }`}
-                          >
-                            {p.violations}
+                        {isLimitExceeded ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 shadow-xs animate-pulse">
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                            </span>
+                            EXCEEDED
                           </span>
                         ) : (
-                          <span className="text-stone-500">0</span>
+                          <span
+                            className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase ${
+                              p.status === 'flagged'
+                                ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                                : p.status === 'warning'
+                                ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                : p.status === 'submitted'
+                                ? 'bg-stone-100 text-stone-800 border border-stone-200'
+                                : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            }`}
+                          >
+                            {p.status}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-center font-mono">
+                        {isLimitExceeded ? (
+                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-600 text-white font-bold text-xs shadow-xs animate-pulse">
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <span>{p.violations} / {maxViolationsAllowed} EXCEEDED</span>
+                          </div>
+                        ) : p.violations > 0 ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs">
+                            <AlertTriangle className="w-3 h-3 text-amber-600" />
+                            <span>{p.violations} / {maxViolationsAllowed}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-emerald-700 text-xs font-semibold">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>0</span>
+                          </span>
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-right">
@@ -567,61 +720,111 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
               No participants found.
             </div>
           ) : (
-            filteredParticipants.map((p) => (
-              <div
-                key={p.id}
-                onClick={() => handleOpenParticipant(p.id)}
-                className="p-4 active:bg-stone-50 cursor-pointer transition-colors"
-              >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div>
-                    <div className="font-bold text-xs text-stone-900">{p.name}</div>
-                    <div className="text-[11px] font-mono text-stone-600">
-                      {p.participantId} {p.department && `· ${p.department}`}
-                      {p.isDemo && ' (Demo)'}
-                    </div>
-                  </div>
-                  <span
-                    className={`text-[10px] font-semibold uppercase ${
-                      p.status === 'flagged'
-                        ? 'text-rose-700'
-                        : p.status === 'warning'
-                        ? 'text-amber-700'
-                        : p.status === 'submitted'
-                        ? 'text-stone-800'
-                        : 'text-emerald-700'
-                    }`}
-                  >
-                    {p.status}
-                  </span>
-                </div>
+            filteredParticipants.map((p) => {
+              const isLimitExceeded = p.violations >= maxViolationsAllowed;
+              const totalQ = p.totalQuestions || 5;
+              const answered = p.answeredCount ?? Object.keys(p.answers || {}).length;
+              const pct = p.progressPercentage ?? Math.round((answered / (totalQ || 1)) * 100);
 
-                <div className="grid grid-cols-4 gap-2 pt-2 border-t border-stone-100 text-center font-mono">
-                  <div>
-                    <div className="text-[9px] uppercase text-stone-600">Progress</div>
-                    <div className="text-xs font-semibold text-stone-900">{p.progressText}</div>
-                  </div>
-                  <div>
-                    <div className="text-[9px] uppercase text-stone-600">Score</div>
-                    <div className="text-xs font-bold text-stone-900">{p.scoreText}</div>
-                  </div>
-                  <div>
-                    <div className="text-[9px] uppercase text-stone-600">Time</div>
-                    <div className="text-xs text-stone-700">{p.timeDisplay}</div>
-                  </div>
-                  <div>
-                    <div className="text-[9px] uppercase text-stone-600">Violations</div>
-                    <div
-                      className={`text-xs font-bold ${
-                        p.violations > 0 ? 'text-amber-700' : 'text-stone-600'
+              return (
+                <div
+                  key={p.id}
+                  onClick={() => handleOpenParticipant(p.id)}
+                  className={`p-4 active:bg-stone-50 cursor-pointer transition-colors ${
+                    isLimitExceeded
+                      ? 'bg-rose-50/70 border-l-4 border-l-rose-600'
+                      : p.status === 'warning'
+                      ? 'bg-amber-50/30'
+                      : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2.5">
+                    <div className="flex items-start gap-2">
+                      {isLimitExceeded && (
+                        <span className="relative flex h-2.5 w-2.5 shrink-0 mt-1">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+                        </span>
+                      )}
+                      <div>
+                        <div className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
+                          <span>{p.name}</span>
+                          {isLimitExceeded && (
+                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-rose-200 text-rose-900">
+                              LIMIT EXCEEDED
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] font-mono text-stone-600">
+                          {p.participantId} {p.department && `· ${p.department}`}
+                          {p.isDemo && ' (Demo)'}
+                        </div>
+                      </div>
+                    </div>
+                    <span
+                      className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${
+                        isLimitExceeded
+                          ? 'bg-rose-600 text-white font-bold animate-pulse'
+                          : p.status === 'flagged'
+                          ? 'bg-rose-100 text-rose-800'
+                          : p.status === 'warning'
+                          ? 'bg-amber-100 text-amber-800'
+                          : p.status === 'submitted'
+                          ? 'bg-stone-100 text-stone-800'
+                          : 'bg-emerald-100 text-emerald-800'
                       }`}
                     >
-                      {p.violations}
+                      {isLimitExceeded ? 'EXCEEDED' : p.status}
+                    </span>
+                  </div>
+
+                  {/* Mobile Live Progress Bar */}
+                  <div className="my-2.5 p-2 rounded-xl bg-stone-100/70">
+                    <div className="flex items-center justify-between text-[11px] font-mono mb-1">
+                      <span className="font-bold text-stone-800">Progress: {answered}/{totalQ} Answered</span>
+                      <span className="font-bold text-stone-700">{pct}%</span>
+                    </div>
+                    <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden shadow-inner">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          pct === 100
+                            ? 'bg-emerald-500'
+                            : pct > 0
+                            ? 'bg-stone-900'
+                            : 'bg-stone-300'
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-stone-100 text-center font-mono">
+                    <div>
+                      <div className="text-[9px] uppercase text-stone-600">Score</div>
+                      <div className="text-xs font-bold text-stone-900">{p.scoreText}</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase text-stone-600">Time</div>
+                      <div className="text-xs text-stone-700">{p.timeDisplay}</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase text-stone-600">Violations</div>
+                      <div
+                        className={`text-xs font-bold ${
+                          isLimitExceeded
+                            ? 'text-rose-700 underline font-black animate-pulse'
+                            : p.violations > 0
+                            ? 'text-amber-700'
+                            : 'text-stone-600'
+                        }`}
+                      >
+                        {p.violations} {isLimitExceeded && '⚠'}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -670,7 +873,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
                 <span className="text-[10px] uppercase font-medium text-stone-600 block">
                   Status
                 </span>
-                <span className="text-xs font-bold uppercase tracking-wide text-stone-900 block mt-1">
+                <span className={`text-xs font-bold uppercase tracking-wide block mt-1 ${
+                  selectedParticipant.violations >= maxViolationsAllowed
+                    ? 'text-rose-700 underline'
+                    : 'text-stone-900'
+                }`}>
                   {selectedParticipant.status}
                 </span>
               </div>
@@ -680,11 +887,83 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminToken, onLo
                 </span>
                 <span
                   className={`text-lg font-bold font-mono ${
-                    selectedParticipant.violations > 0 ? 'text-amber-700' : 'text-stone-900'
+                    selectedParticipant.violations >= maxViolationsAllowed
+                      ? 'text-rose-700'
+                      : selectedParticipant.violations > 0
+                      ? 'text-amber-700'
+                      : 'text-stone-900'
                   }`}
                 >
-                  {selectedParticipant.violations}
+                  {selectedParticipant.violations} / {maxViolationsAllowed}
                 </span>
+              </div>
+            </div>
+
+            {/* Violation Alert Banner if exceeded */}
+            {selectedParticipant.violations >= maxViolationsAllowed && (
+              <div className="mx-5 mt-4 p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-950 flex items-start gap-3 shadow-xs">
+                <div className="p-1.5 rounded-lg bg-rose-600 text-white shrink-0 mt-0.5 animate-pulse">
+                  <ShieldAlert className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="font-bold text-xs uppercase tracking-wide text-rose-900 flex items-center gap-2">
+                    <span>Violation Limit Exceeded</span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-rose-200 text-rose-900">
+                      FLAGGED
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-rose-800 mt-0.5 leading-snug">
+                    Participant exceeded the maximum allowed limit of {maxViolationsAllowed} window/tab departures ({selectedParticipant.violations} violations logged). Test was automatically locked and flagged for review.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Candidate Live Progress Map */}
+            <div className="px-5 pt-4 pb-2 border-b border-stone-100">
+              <div className="flex items-center justify-between text-xs font-semibold text-stone-800 mb-1.5">
+                <span className="flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-stone-600" />
+                  <span>Examination Progress</span>
+                </span>
+                <span className="font-mono text-stone-600">
+                  {Object.keys(selectedParticipant.answers || {}).length} of {selectedParticipant.totalQuestions} Questions Completed ({Math.round((Object.keys(selectedParticipant.answers || {}).length / (selectedParticipant.totalQuestions || 1)) * 100)}%)
+                </span>
+              </div>
+
+              <div className="w-full bg-stone-200 rounded-full h-2.5 overflow-hidden shadow-inner mb-3">
+                <div
+                  className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${Math.round((Object.keys(selectedParticipant.answers || {}).length / (selectedParticipant.totalQuestions || 1)) * 100)}%`
+                  }}
+                />
+              </div>
+
+              {/* Question Chips Map */}
+              <div className="grid grid-cols-5 gap-1.5 mb-2">
+                {Array.from({ length: selectedParticipant.totalQuestions || 5 }).map((_, qIdx) => {
+                  const qNum = qIdx + 1;
+                  const chosenOpt = selectedParticipant.answers ? selectedParticipant.answers[qNum] : undefined;
+                  const isAns = chosenOpt !== undefined && chosenOpt !== null;
+                  const letter = isAns ? String.fromCharCode(65 + Number(chosenOpt)) : null;
+
+                  return (
+                    <div
+                      key={qNum}
+                      className={`p-1.5 rounded-lg border text-center ${
+                        isAns
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-950 font-semibold'
+                          : 'bg-stone-50 border-stone-200 text-stone-400'
+                      }`}
+                    >
+                      <div className="text-[10px] font-mono uppercase text-stone-500">Q{qNum}</div>
+                      <div className="text-xs font-bold font-mono">
+                        {isAns ? `Option ${letter}` : 'Pending'}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

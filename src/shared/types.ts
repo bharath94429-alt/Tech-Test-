@@ -48,7 +48,11 @@ export interface ParticipantSummary {
   participantId: string;
   name: string;
   department: string;
-  progressText: string; // e.g. "8/10"
+  progressText: string; // e.g. "2/5"
+  answeredCount?: number;
+  totalQuestions?: number;
+  progressPercentage?: number;
+  answers?: Record<number, number>;
   currentQuestionNumber: number;
   scoreText: string; // e.g. "7/10" or "-"
   score: number;
